@@ -1,70 +1,71 @@
-fn main() {
-    println!("Hello, world!");
+use std::{error::Error, io};
+
+const DIVIDER: &str = "═══════════════════════════════════════════";
+const SECTION_DIVIDER: &str = "───────────────────────────────────────────";
+
+fn clear_screen() {
+    print!("\x1B[2J\x1B[1;1H");
 }
 
-pub fn two_sum_brute(nums: Vec<i32>, target: i32) -> Vec<i32> {
-    let mut res = Vec::new();
-    for i in 0..nums.len() {
-        for j in (i + 1)..nums.len() {
-            if nums[i] + nums[j] == target {
-                res = vec![i as i32, j as i32];
+fn print_header(title: &str) {
+    println!("\n╔{}╗", DIVIDER);
+    println!("║{:^43}║", title);
+    println!("╠{}╣", DIVIDER);
+}
+
+fn print_footer() {
+    println!("╚{}╝\n", DIVIDER);
+}
+
+fn print_menu_item(number: &str, description: &str) {
+    println!("║  [{}] {:<37}║", number, description);
+}
+
+fn print_instruction(instruction: &str) {
+    println!("║ {} {:<40}║", "→", instruction);
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    loop {
+        clear_screen();
+        print_header("LEETCODE KEEPER");
+        println!("║                                           ║");
+        println!("║  Select a category:                       ║");
+        println!("║                                           ║");
+        print_menu_item("1", "Array And String");
+        println!("║                                           ║");
+        print_menu_item("0", "Exit");
+        println!("║                                           ║");
+        print_instruction("Enter your choice and press Enter:");
+        print_footer();
+
+        let mut buf = String::new();
+        match io::stdin().read_line(&mut buf) {
+            Ok(_) => match buf.trim() {
+                "1" => arrnstr::route()?,
+                "0" => {
+                    println!("Thank you for using LeetCode Keeper!");
+                    break;
+                }
+                _ => {
+                    println!(
+                        "\n❌ Invalid input: '{}'. Please enter a valid option.",
+                        buf.trim()
+                    );
+                    pause();
+                }
+            },
+            Err(e) => {
+                println!("\n❌ Error reading input: {}", e);
+                pause();
             }
         }
     }
-    res
+
+    Ok(())
 }
 
-pub fn two_sum_hashmap(nums: Vec<i32>, target: i32) -> Vec<i32> {
-    use std::collections::HashMap;
-
-    let mut res = Vec::new();
-    let mut map: HashMap<i32, i32> = HashMap::new();
-
-    nums.iter().enumerate().for_each(|(k, v)| {
-        map.insert(*v, k as i32);
-    });
-
-    for (i, v) in nums.iter().enumerate() {
-        let maybe_pair = target - *v;
-        if let Some(&j) = map.get(&maybe_pair)
-            && j != i as i32 {
-                res.push(i as i32);
-                res.push(j);
-                break;
-            }
-    }
-    res
-}
-
-pub fn two_sum_one_pass(nums: Vec<i32>, target: i32) -> Vec<i32> {
-    use std::collections::HashMap;
-
-    let mut map: HashMap<i32, i32> = HashMap::with_capacity(nums.len());
-
-    for (i, v) in nums.iter().enumerate() {
-        let int_i = i as i32;
-        let maybe_pair = target - *v;
-        if let Some(&j) = map.get(&maybe_pair)
-            && j != int_i {
-                return vec![j, int_i];
-            }
-        map.insert(*v, int_i);
-    }
-    vec![]
-}
-
-pub fn max_profit(prices: Vec<i32>) -> i32 {
-    let mut min_val = prices[0];
-    let mut max_profit = 0;
-
-    for &price in &prices[1..] {
-        if price < min_val {
-            min_val = price;
-            continue;
-        }
-
-        max_profit = i32::max(max_profit, price - min_val);
-    }
-
-    max_profit
+fn pause() {
+    println!("\nPress Enter to continue...");
+    io::stdin().read_line(&mut String::new()).unwrap();
 }

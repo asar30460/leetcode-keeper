@@ -1,4 +1,10 @@
+[workspace]
+members = ["array-n-string"]
+
 [package]
 name = "leetcode-keeper"
 version = "0.1.0"
 edition = "2024"
+
+[dependencies]
+arrnstr = { path = "./array-n-string" }
